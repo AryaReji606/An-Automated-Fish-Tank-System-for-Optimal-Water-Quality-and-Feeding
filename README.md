@@ -1,0 +1,2 @@
+# An-Automated-Fish-Tank-System-for-Optimal-Water-Quality-and-Feeding
+The system uses sensors to monitor pH and temperature, helping determine amount of harmful particles in water. The pH and temp values are sent to a microcontroller, which controls water exchange through solenoid valves to maintain optimal conditions. An automatic food dispenser using a servo motor for regular feeding &amp; temp is displayed on an LCD.
