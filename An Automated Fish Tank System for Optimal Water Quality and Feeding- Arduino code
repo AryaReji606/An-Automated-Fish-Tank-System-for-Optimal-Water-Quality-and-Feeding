@@ -1,0 +1,80 @@
+Arduino IDE
+//initialize the pins for temperature sensor, servo motor, and solenoid valve
+const int tempSensorPin = A0;
+const int servoPin = 9;
+const int valvePin = 10;
+
+//set the temperature ranges
+const int minTemp = 20; //minimum temperature in Celsius
+const int maxTemp = 26; //maximum temperature in Celsius
+
+//create variables to store the temperature and servo motor position
+int temp = 0;
+int servoPos = 0;
+
+void setup() {
+  //initialize the serial monitor
+  Serial.begin(9600);
+
+  //set servo and valve pins as output
+  pinMode(servoPin, OUTPUT);
+  pinMode(valvePin, OUTPUT);
+
+  //move servo to initial position
+  servoMove(0);
+
+  //close the solenoid valve to stop water flow
+  valveControl(false);
+}
+
+void loop() {
+  //read the temperature from the sensor
+  temp = getTemp();
+
+  //check if the temperature is within the desired range
+  if (temp < minTemp) {
+    //if the temperature is too low, move the servo motor to increase water flow
+    servoMove(180);
+    valveControl(true); //open the solenoid valve to start water flow
+  } else if (temp > maxTemp) {
+    //if the temperature is too high, move the servo motor to decrease water flow
+    servoMove(0);
+    valveControl(false); //close the solenoid valve to stop water flow
+  } else {
+    //if the temperature is in the desired range, keep servo motor and valve positions unchanged
+    servoMove(servoPos);
+    valveControl(valveStatus());
+  }
+
+  //print the temperature on the serial monitor
+  Serial.print("Temperature: ");
+  Serial.print(temp);
+  Serial.println(" C");
+  
+  //wait for 1 second before reading the temperature again
+  delay(1000);
+}
+
+//function to read the temperature from the sensor
+int getTemp() {
+  int sensorValue = analogRead(tempSensorPin);
+  float voltage = (sensorValue/1024.0)*5.0;
+  int tempC = (voltage - 0.5) * 100;
+  return tempC;
+}
+
+//function to move the servo motor to the given position
+void servoMove(int pos) {
+  servoPos = pos;
+  analogWrite(servoPin, map(pos, 0, 180, 0, 255));
+}
+
+//function to open/close the solenoid valve to control water flow
+void valveControl(bool status) {
+  digitalWrite(valvePin, status);
+}
+
+//function to get the current status of the solenoid valve
+bool valveStatus() {
+  return digitalRead(valvePin);
+}
